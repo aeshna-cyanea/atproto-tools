@@ -22,7 +22,6 @@ rating_field = source_name + "_Rating"
 
 fields = [name_field, desc_field, tags_field, rating_field]
 
-# fully automated D:
 def make_tag_key(tags: set | dict, source_table : str = source_name) -> dict[str, str]:
     tag_table_name = source_table + '_Tags'
 
@@ -34,14 +33,9 @@ def make_tag_key(tags: set | dict, source_table : str = source_name) -> dict[str
         tag_cols = [{"id": "Tag", "fields": {"label": "Tag"}}]
         tags_records = [{ "require": { "Tag": x }} for x in tags]
 
-    try:
-        g.add_update_cols(tag_table_name, tag_cols, noadd=False, noupdate=False)
-    except requests.HTTPError:
+        g.add_update_cols(tag_table_name, tag_cols, noadd=False, noupdate=False) #TODO add workaround to use get-add instead of put
         if not g.ok:
             g.add_tables([{"id": tag_table_name, "columns": tag_cols}])
-        else:
-            # idk how errors work
-            raise requests.HTTPError(msg=g.resp_content) #type: ignore
 
     g.add_update_records(tag_table_name, tags_records)
     new_tags = g.list_records(tag_table_name)[1]
@@ -51,7 +45,6 @@ def apply_tag_key(tags : list, key : dict):
     return ["L", *[key[tag] for tag in tags]]
 
 def handler(pd: "pipedream"):  # type: ignore  # noqa: F821
-    # return print(table_name if use_single_table else single_table_name)
     tool_entries = dict()
     repo_records = dict()
     tags = set()
@@ -105,5 +98,4 @@ def handler(pd: "pipedream"):  # type: ignore  # noqa: F821
         "records": tool_entries,
         "columns": fields,
         "repos": repo_records
-        # "authors":
     }

@@ -18,7 +18,6 @@ rating_field = source_name + "_Rating"
 
 fields = [name_field, desc_field, tags_field, rating_field]
 
-# fully automated D:
 def make_tag_key(tags: set | dict, source_table : str = source_name) -> dict[str, str]:
     tag_table_name = source_table + '_Tags'
 

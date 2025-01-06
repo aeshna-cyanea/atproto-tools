@@ -69,19 +69,16 @@ def make_table_cols(source : str, target_fields: list[str]):
 
     return resp
 
-#TODO add support for a single table (with gaps in columns) (and timestamps per data source's group of cols)
 def handler(pd: "pipedream"):  # type: ignore  # noqa: F821
-    data = pd.steps.gather
+    data = pd.steps["Get_Official_Showcase"]["$return_value"]
     source : str = data["source"]
     columns : list[str] = data["columns"]
-    columns.append(source + "_Timestamp")
-    # return columns
     make_table_cols(source, columns)
     records : dict[str, dict] = data["records"] 
     
     single_table_key = put_get_key(single_table_name, [{"require": {"URL": url}} for url in records.keys()])     
 
-    if "repos" in data: # the repo urls are real. write them, then get the key to them and save it to the records dict
+    if "repos" in data:
         repos : dict[str, list[str]] = data["repos"]
         repos_key = put_get_key("Repos", make_require(repos))
         for url, entry_repos in repos.items():
